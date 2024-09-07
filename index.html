@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href='./public/img/logo.png' />
+    <title>Pomodoro Timer</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <h1><img src='./public/img/logo.png' alt="">Pomodoro Timer</h1>
+        <div id="nav-btns--container">
+          <button id="settings-btn"><span>Settings</span><img src='./public/img/settings.svg' alt="settings"></button>
+          <!-- <button id="profile-btn"><span>Profile</span><img src="/Public/user.svg" alt="profile"></button> -->
+          <dialog id="settings-modal">
+            <div class="quit-container">
+              <button id="quit-modal--btn"><img src="./public/img/x.svg" alt=""></button>
+            </div>
+            <form>
+              <h5>Timer</h5>
+              <div class="timer-settings">
+              <label for="autostart">
+                <span>Autostart</span>
+                <input class="checkbox-input" checked value="autostart" type="checkbox" id="autostart">
+              </label>
+              <label for="timer-pomodoro">
+                <span>Pomodoro minutes</span>
+                <input class="number-input" value="25" type="number" id="timer-pomodoro">
+              </label>
+              <label for="timer-shortBreak">
+                <span>Short break minutes</span>
+                <input class="number-input" value="5" type="number" id="timer-shortBreak">
+              </label>
+              <label for="timer-longBreak">
+                <span>Long break minutes</span>
+                <input class="number-input" value="20" type="number" id="timer-longBreak">
+              </label>
+              <label for="long-break--pomodoros">
+                <span>Long break interval</span>
+                <input class="number-input" value="4" type="number" id="long-break--pomodoros">
+              </label>
+            </div>
+            <!-- <h5>Appearance</h5>
+            <div class="theme-settings">
+              <label for="theme">
+                <span>Theme</span>
+                <input class="checkbox-input" value="theme" type="checkbox" id="theme">
+              </label>
+            </div> -->
+            <h5>Notifications</h5>
+            <div class="notifications-settings">
+              <label for="notifications">
+                <span>Notify when timer completes</span>
+                <input class="checkbox-input" value="notifications" type="checkbox" id="notifications">
+              </label>
+            </div>
+            </form>
+          </dialog>
+        </div>
+      </nav>
+    </header>
+    <main>
+      <article class='timer-container'>
+          <div id="modes-container">
+            <button id="pomodoro" class="active" onclick="selectMode('POMODORO')">Pomodoros 0</button>
+            <button id="shortBreak" onclick="selectMode('SHORT_BREAK')">Short Breaks 0</button>
+            <button id="longBreak" onclick="selectMode('LONG_BREAK')">Long Breaks 0</button>
+          </div>
+          <div id="time-container">
+            <span id='timer'>25:00</span>
+          </div>
+          <div id="play-reset--container">
+            <button id='play-timer' onclick="startTimer()">Start</button>
+            <button id='reset-timer' onclick="resetTimer()">Reset</button>
+          </div>
+      </article>
+      <article class="tasks-container">
+        <h2>Tasks <button id="clear">Clear</button></h2>
+        <ul id="task-list">
+          <div id="tasks">
+            <!-- <li id="li1" draggable="true">
+              <label for="check-button">
+                <input type="checkbox" class="check-button">
+              </label>
+              <textarea class="task">newList</textarea>
+              <div class="options-container">
+                <span class="pomodoros-completed">
+                  1/1
+                </span>
+                  <div class="pomodoros-completed inputs-pomodoros-completed">
+                    <input type="number" value="1">
+                    /
+                    <input type="number" value="1">
+                  </div> 
+                <button class="task-options--btn" onclick="openTaskOptions(event)">...</button>
+                <button style="display: none" class="trash-btn"><img src="./public/img/trash" alt="trash"></button>
+              </div>
+            </li> -->
+          </div>
+          <div id="checked-tasks">
+          </div>
+        </ul>
+        <form id="input-container">
+          <div id="taskInput-container">
+            <input autocomplete="off" placeholder="Introduce the task..." id="text-input" type="text"></input>
+            <input type="number" placeholder="1" value="1" min="1" id="pomodoros-estimated">
+          </div>
+          <button id="addTask">Add Task</button>
+        </form>
+      </article>
+      <footer>
+        <span>Developed by Dorian (icons  <a href="https://github.com/imDorian/pomodorotimer" target="_blank" rel="noopener noreferrer">github</a> && linkdin)</span>
+      </footer>
+    </main>
+  </body>
+</html>
+
+<style>
+
+  :root {
+    --primary-color: #003057;
+    --secondary-color: #fd7652;
+    --third-color: #982b42;
+    --white-color: #ffffff;
+    --red-color: rgb(223, 66, 66);
+    --blue--color:#3F5468;
+    --checked-task-color: #80808038;
+    --article-color: #f5f5f5;
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  button {
+    border-radius: 20px;
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+    background-color: transparent;
+    transition: all 300ms;
+    color: var(--primary-color);
+    /* border-bottom: 1px solid #3F5468; */
+    font-size: 16px;
+    font-weight: 600;
+    &:hover {
+        transition: all 300ms;
+        background-color: var(--primary-color);
+        color: var(--white-color);
+        /* border-radius: 6px; */
+    }
+  }
+
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    width: 100vw;
+    position: fixed;
+    top: 0px;
+    background-color: var(--white-color);
+    z-index: 99;
+    & h1 {
+        background-color: transparent;
+        border-radius: 12px;
+        /* border: 2px solid #C51605; */
+        padding-inline: 10px;
+        padding-block: 5px;
+        color: var(--primary-color);
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        /* width: 100%; */
+        img {
+          width: 50px;
+          height: 50px;
+        }
+    }
+    & nav {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-around;
+      width: 100%;
+      height: 70px;
+      padding: 10px ;
+
+      /* div {
+        display: flex;
+        flex-direction: column;
+      } */
+      #nav-btns--container {
+        display: flex;
+        flex-direction: row;
+        gap: 10px;
+      }
+      
+      & button {
+        font-size: 10px;
+        font-weight: 600;
+        color: var(--primary-color);
+        /* border: #3F5468 solid 1px; */
+        background-color: var(--checked-task-color);
+        display: flex;
+        gap: 5px;
+        justify-content: center;
+        align-items: center;
+        padding: 5px;
+        padding-inline: 8px;
+        box-shadow: 0 0 20px -150px var(--primary-color);
+        transition: all 300ms;
+        span {
+          display: none;
+        }
+        &:hover {
+          transition: ease-in-out 300ms;
+          /* background-color: #va; */
+          color: var(--primary-color);
+          box-shadow: 0 0 20px -10px var(--primary-color);
+        }
+      }
+    }
+    /* &::after {
+      content: "";
+      background-color: #3F5468;
+      width: 90%;
+      height: 1px;
+      display: block;
+    } */
+  }
+
+  body {
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      /* font-size: 1px; */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100vw;
+    background-color: var(--white-color);
+    gap: 20px;
+    color: var(--primary-color);
+    padding-top: 100px;
+  }
+  main {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding-bottom: 100px;
+  }
+
+  article {
+    display: flex;
+    align-items: center;
+    justify-content: center ;
+    border: 1px solid var(--article-color);
+    width: 95%;
+    max-width: 600px;
+    border-radius: 20px;
+    padding: 15px;
+    background: var(--article-color);
+    box-shadow: rgba(136, 165, 191, 0.48) 6px 2px 16px 0px, rgba(255, 255, 255, 0.8) -6px -2px 16px 0px;
+  }
+
+  footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    height: 30px;
+    text-align: center;
+    background-color: var(--article-color);
+  }
+  
+  .timer-container {
+    flex-direction: column;
+    justify-content: space-around;
+    gap: 50px;
+    & div {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        gap: 20px;
+        & button {
+            width: 35%;
+            font-size: 16px;
+            font-weight: 500;
+        }
+    }
+  }
+
+  .tasks-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    /* position: relative; */
+    height: 500px;
+    /* position: relative; */
+    h2 {
+      color: var(--secondary-color);
+    }
+    ul {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      list-style: none;
+      gap: 5px;
+      height: inherit;
+      overflow-y: auto;
+      overflow-x: hidden;
+      border-block: 1px solid var(--primary-color);
+      padding-block: 15px;
+      scrollbar-color: var(--primary-color) transparent;
+      scrollbar-width: thin;
+      padding-inline: 10px;
+      /* box-shadow: inset 0 0 20px -10px #3F5468; */
+      /* position: relative; */
+      
+      li {
+        background-color: var(--white-color);
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        /* border: none; */
+        border: var(--checked-task-color) 1px solid;
+        padding: 5px;
+        border-radius: 12px;
+        color: var(--white-color);
+        font-weight: 400;
+        position: relative;
+        transition: all 300ms;
+        box-shadow: 0 0 10px -10px var(--primary-color);
+        &:hover {
+          .trash-btn, .edit-btn {
+            display: flex;
+          }
+        }
+        button {
+          border: none;
+        }
+        .check-button {
+          border-radius: 500%;
+          display: flex;
+          align-items: center;
+          cursor: pointer;
+          background-color:var(--white-color);
+          color: var(--white-color);
+          background-image: url("./public/img/x.svg");
+          width: 24px;
+          height: 24px;
+          appearance: none;
+          border: 1px solid var(--checked-task-color);
+          background-position: -2rem ;
+          background-size: 100%;
+          background-repeat: no-repeat;
+          transition: all 200ms ; 
+        }
+        .check-button:checked {
+          /* background-color: var(--primary-color); */
+          /* color: rgb(75, 156, 13); */
+          background-position: 0 0;
+        }
+        .task {
+          resize: none;
+          field-sizing: content;
+          font-size: 18px;
+          text-align: start;
+          width: 100%;
+          min-height: 50px;
+          max-height: 100px;
+          border-radius: 6px;
+          border: none;
+          background-color: transparent;
+          cursor: pointer;
+          color: var(--blue--color);
+          scrollbar-color: var(--primary-color) transparent;
+          scrollbar-width: none;
+          &:enabled {
+            background-color: var(--white-color);
+            color: var(--primary-color);
+            padding-inline: 5px;
+            padding-right: 80px;
+          }
+        }
+    
+      }
+      #tasks, #checked-tasks {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        list-style: none;
+        gap: 5px;
+      } 
+    }
+  }
+  
+
+  .isEditTask {
+    background-color: var(--checked-task-color) !important;
+  }
+
+  .task-options--btn {
+    border: none;
+    font-size: 24px;
+    text-align: start;
+    display: none;
+    color: var(--checked-task-color);
+    &:hover {
+      background-color: transparent;
+      color: var(--primary-color);
+    }
+  }
+
+  .trash-btn, .edit-btn {
+    z-index: 99;
+      background-color: var(--white-color) !important;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      height: 30px;
+      padding: 15px;
+      width: 30px;
+      box-shadow: 0 0 15px -10px black;
+      border: 1px solid var(--checked-task-color) !important;
+      &:hover {
+        background-color: #e4e4e4 !important;
+        border: 1px solid var(--checked-task-color) !important;
+      }
+  }
+
+  .task-options--active {
+    display: inline;
+  }
+  
+  .options-container {
+    display: flex;
+    position: absolute;
+    top: 50%;
+    right: 5px;
+    height: 100%;
+    transform: translate(0%, -50%);
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    .pomodoros-completed {
+      position: absolute;
+      top: 0;
+      right: -13px;
+      font-weight: 500;
+      font-size: 14px;
+      margin-inline: 10px;
+      font-stretch: expanded;
+      color: var(--checked-task-color);
+      letter-spacing: 2px;
+      display: flex;
+      flex-direction: row;
+      text-align: center;
+      gap: 10px;
+      /* width: auto; */
+    }
+    .inputs-pomodoros-completed {
+      display: none;
+      input {
+        width: 35px;
+        height: 35px;
+        text-align: center;
+        background: var(--checked-task-color);
+        color: var(--blue--color);
+        border: none;
+        border-radius: 6px;
+        margin-inline: 2px;
+        font-weight: 600;
+        outline: none;
+      }
+    }
+  }
+
+  .is-dragging {
+    background-color: var(--article-color) !important;
+    box-shadow: 0 0 20px -5px var(--primary-color);
+    scale: 1.03;
+  }
+
+  #settings-btn {
+    transition: all 300ms;
+    box-shadow: 0 0 20px -15px var(--primary-color);
+    background-color: var(--checked-task-color);
+    &:hover {
+      transition: all 300ms;
+      box-shadow: 0 0 20px -10px var(--primary-color);
+    }
+  }
+
+ 
+  #taskInput-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+  }
+  #pomodoros-estimated {
+    border: 0;
+    width: 20%;
+    text-align: center;
+  }
+
+  #text-input {
+    width: 80%;
+    border: 0;
+    border-top-left-radius: 12px;
+    border-bottom-left-radius: 12px;
+  }
+
+  #play-reset--container {
+    /* display: flex; */
+    /* flex-direction: column; */
+    & button {
+      width: 50%;
+      /* border: 1px solid #3F5468; */
+      border-radius: 20px;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: large;
+      box-shadow: 0 0 20px -20px var(--primary-color);
+      transition: all 300ms;
+      letter-spacing: 2px;
+      &:hover {
+        box-shadow: 0 0 20px -10px var(--primary-color);
+      }
+    }
+    #play-timer {
+      background-color: var(--secondary-color);
+      color: var(--white-color);
+      &:hover {
+        color:var(--white-color) ;
+      }
+      /* border: 1px solid #3F5468; */
+    }
+    #reset-timer {
+      background-color: var(--primary-color);
+      color: var(--white-color);
+      &:hover {
+        color: var(--white-color);
+      }
+    }
+  }
+
+  #timer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 15rem;
+    height: 15rem;
+    font-size: 75px;
+    background-color: var(--white-color);
+    border-radius: 100%;
+    color: var(--secondary-color);
+    border: 2px solid var(--secondary-color)
+  }
+
+  /* #time-container {
+    flex-direction: column;
+  } */
+
+  #modes-container {
+    align-items: stretch;
+  }
+
+  #input-container {
+    width: 100%;
+    /* height: inherit; */
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    /* gap: 5px; */
+    padding: 5px;
+    border-radius: 10px;
+    font-weight: 500;
+    input {
+      color: var(--primary-color);
+      border: none;
+      /* width: 70%; */
+      /* border-top-left-radius: 12px; */
+      font-size: 18px;
+      height: 60px;
+      padding: 5px;
+      font-weight: 500;
+      background-color: var(--white-color);
+      outline: none;
+      resize: none;
+      transition: all 300ms;
+      &:focus {
+        /* height: 60px; */
+        box-shadow: var(--primary-color) 0 0 20px -10px;
+        z-index: 99;
+      }
+    }
+    button {
+          width: 20%;
+          border-radius: 0;
+          border-top-right-radius: 12px;
+          border-bottom-right-radius: 12px;
+          text-align: center;
+          font-size: 12px;
+          border: none;
+          background-color: var(--primary-color);
+          color: var(--white-color);
+          &:hover {
+            background-color: var(--secondary-color);
+          }
+        }
+  }
+
+  .active {
+    background-color: var(--primary-color);
+    color: var(--white-color);
+  }
+
+  .x-icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .checkbox-input {
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    background-color: var(--white-color);
+    color: var(--white-color);
+    background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e");
+    width: 24px;
+    height: 24px;
+    appearance: none;
+    border: 2px solid var(--white-color);
+    background-position: 0 -2rem;
+    background-size: 100%;
+    background-repeat: no-repeat;
+    transition: all 0.3s ease-in-out;
+  }
+
+  .checked-task {
+    transition: all 300ms;
+    background: var(--checked-task-color) !important;
+    border: 2px solid var(--white-color);
+    .task {
+      text-decoration: line-through 2px;
+      color: var(--checked-task-color) !important;
+    }
+    .pomodoros-completed {
+      /* color:var(--checked-task-color) !important; */
+      /* text-decoration: overline; */
+      text-decoration: line-through 2px;
+    }
+    button {
+      color: var(--checked-task-color);
+      background-color: transparent;
+      &:hover {
+        color: var(--white-color);
+      }
+    }
+  }
+
+
+
+  #settings-modal {
+    /* background-color: #3F5468; */
+    background-color: var(--white-color);
+    z-index: 999;
+    border: none;
+    border-radius: 20px;
+    position: fixed;
+    align-items: center;
+    justify-content: center;
+    top: 50%;
+    left: 50%;
+    padding: 15px;
+    width: 25rem;
+    height: fit-content;
+    box-shadow: 0 0 20px -10px var(--primary-color);
+    /* height: 50%; */
+    transform: translate(-50%, -50%);
+    .quit-container {
+      width: 100%;
+      display: flex;
+      justify-content: flex-end;
+      padding-inline: 20px;
+      button {
+        border: none;
+        width: 24px;
+        height: 24px;
+        background-color: transparent;
+        &:hover {
+          background-color: var(--secondary-color);
+        }
+      }
+    }
+
+    form {
+      display: flex;
+      width: 100%;
+      /* height: 100%; */
+      flex-direction: column;
+      align-items: center;
+      padding: 10px;
+      font-size: 20px;
+      color: var(--primary-color);
+      justify-content: center;
+      h5 {
+        margin-bottom: 8px;
+      }
+      div {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        gap: 10px;
+        padding-block: 15px;
+        margin-block: 15px;
+        border-bottom: 1px solid var(--blue--color);
+        /* &::after {
+          content: '';
+          width: 100%;
+          height: 1px;
+          background-color: #3F5468;
+          margin-block: 20px;
+        } */
+      }
+      label {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        text-align: start;
+        span {
+          text-wrap: wrap;
+          width: 70%;
+        }
+        .number-input {
+          width: 48px;
+          height: 24px;
+          border: none;
+          border-radius: 3px;
+          outline: none ;
+          text-align: center;
+          font-size: 20px;
+          color: var(--primary-color);
+          background-color: var(--article-color);
+          &:focus {
+            box-shadow: 0 0 20px -10px var(--primary-color);
+          }
+        }
+        .checkbox-input {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          appearance: none;
+          width: 48px;
+          height: 24px;
+          background-color: var(--white-color);
+          border-radius: 24px;
+          border: 0;
+          background-image: url('./public/img/buttonOptions.svg');
+          background-repeat: no-repeat;
+          background-size: 50%;
+          background-position: 0px ;
+          transition: all 300ms;
+          box-shadow: 0 0 20px -10px var(--primary-color);
+          &:checked {
+            background-color: #7ec499;
+            background-position: 24px;
+            background-image: url('./public/img/buttonOptions-white.svg');
+          }
+        }
+      }
+    }
+  }
+
+  
+
+  @media screen and (min-width: 900px) {
+    main {
+      flex-direction: row;
+      align-items: stretch;
+    }
+    .timer-container {
+      width: 50%;
+      max-width: 500px;
+    }
+    .tasks-container {
+      width: 40%;
+      max-width: 400px;
+    }
+  }
+  @media screen and (min-width: 500px) {
+    header::after {
+      content: '';
+      height: 1px;
+      width: 90%;
+      background-color: #3f546825;
+    }
+    nav {
+      div {
+        button {
+          span {
+            display: inline-block;
+          }
+        }
+      }
+      &::after {
+        background-color: transparent;
+      }
+    }
+  }
+</style>
+
+<script>
+  const play_timer = document.getElementById('play-timer')
+  const timer_clock = document.getElementById('timer')
+  const pomodoro_button = document.getElementById("pomodoro")
+  const shortBreak_button = document.getElementById('shortBreak')
+  const longBreak_button = document.getElementById('longBreak')
+  const task_list = document.getElementById('task-list')
+  const task_options = document.getElementsByClassName('task-options')
+  const task_options_btn = document.getElementsByClassName('task-options--btn')
+  const trash_btn = document.querySelector(".trash-btn")
+  const add_task = document.querySelector("#addTask")
+  const pomodoros_n = document.querySelector('#pomodoros')
+  const settings_btn = document.querySelector('#settings-btn')
+  const settingsModal = document.querySelector('#settings-modal')
+  const theme_btn = document.querySelector('#theme')
+  const autoStart_btn = document.querySelector('#autostart')
+  const quitModal_btn = document.querySelector('#quit-modal--btn')
+  const longBreak_pomodoros = document.querySelector('#long-break--pomodoros')
+  const timer_pomodoro = document.querySelector('#timer-pomodoro')
+  const timer_shortBreak = document.querySelector('#timer-shortBreak')
+  const timer_longBreak = document.querySelector('#timer-longBreak')
+  const notifications = document.querySelector('#notifications')
+  const pomodoros_estimated = document.querySelector('#pomodoros-estimated')
+  const tasks = document.querySelector('#tasks')
+  const checked_tasks = document.querySelector('#checked-tasks')
+  const clear = document.querySelector('#clear')
+  const li1 = document.querySelector('#li1')
+
+
+  const MODES = {
+    pomodoro: 'POMODORO',
+    shortBreak: 'SHORT_BREAK',
+    longBreak: 'LONG_BREAK'
+  }
+  
+  function updateLocalStorage() {
+    window.localStorage.setItem('pomoData', JSON.stringify(data))
+    console.log(data)
+  }
+  function generateId () {
+      const part1 = Date.now().toString(35)
+      const part2 = Math.random().toString(36).slice(2)
+      return part1 + part2
+  }
+  const miStorage = JSON.parse(window.localStorage.getItem('pomoData'))
+
+  clear.addEventListener('click', (e) => {
+    // e.addEventListener
+    data.checked = []
+    data.tasks = []
+    tasks.remove()
+    checked_tasks.remove()
+    updateLocalStorage()
+  })
+
+
+  let botTask
+  tasks.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    const bottomTask = insertAboveTask(e.clientY);
+    const curTask = document.querySelector(".is-dragging");
+    const taskID = data.tasks.find(t => t.id === curTask.id);
+    const newTasksList = data.tasks.filter(f => f.id !== curTask.id);
+    if (!bottomTask) {
+      tasks.appendChild(curTask);
+      if (botTask !== bottomTask) {
+        newTasksList.push(taskID);
+        botTask = bottomTask
+        data.tasks = newTasksList;
+        updateLocalStorage();
+      }
+    } else {
+      tasks.insertBefore(curTask, bottomTask);
+      if (botTask !== bottomTask) {
+        botTask = bottomTask
+        const index = newTasksList.findIndex(t => t.id === bottomTask.id);
+        newTasksList.splice(index, 0, taskID);
+        data.tasks = newTasksList;
+        updateLocalStorage();
+      }
+    }
+  })
+
+
+  const insertAboveTask = (mouseY) => {
+    const els = tasks.querySelectorAll(".task-container:not(.is-dragging)");
+
+    let closestTask = null;
+    let closestOffset = Number.NEGATIVE_INFINITY;
+
+    els.forEach((task) => {
+      const { top } = task.getBoundingClientRect()
+      const offset = mouseY - top
+      // console.log(top, offset)
+      if (offset < 0 && offset > closestOffset) {
+        closestOffset = offset;
+        closestTask = task;
+      }
+    });
+
+    // console.log(closestTask)
+    return closestTask;
+  }
+
+  const createTask = (task) => {
+    const li = document.createElement('li')
+      const label = document.createElement('label')
+      const inputLabel = document.createElement('input')
+      const taskInput = document.createElement('textarea')
+      const optionsButton = document.createElement('button')
+      const deleteButton = document.createElement('button')
+      const trashImg = document.createElement('img')
+      const pomodorosSpan = document.createElement('span')
+      const optionsContainer = document.createElement('div')
+      const editBtn = document.createElement('button')
+      const editPen = document.createElement('img')
+      const pomodorosCompletedInput = document.createElement('input')
+      const pomodorosEstimatedInput = document.createElement('input')
+      const pomodorosContainer = document.createElement('div')
+
+      li.draggable = true
+
+      li.addEventListener('dragstart', (e) => {
+        li.classList.add('is-dragging')
+      })
+      li.addEventListener('dragend', (e) => {
+        li.classList.remove('is-dragging')
+      })
+
+      document.addEventListener('click', (e) => {
+        if (!li.contains(e.target)) {
+          editBtn.style = 'display: true'
+          deleteButton.style = 'display: true'
+          optionsButton.style = 'display: true'
+          label.style = 'display: true'
+          // taskInput.autofocus = true
+          taskInput.disabled = true
+          pomodorosContainer.style = 'display: none'
+          pomodorosSpan.style = 'display: flex'
+          li.classList.remove('isEditTask')
+          const oldTask = data.tasks.find(t => t.id === li.id) ?? false
+          // console.log(li.id, oldTask.id, taskInput.value)
+          if (oldTask !== false && oldTask.task !== taskInput.value) {
+            // console.log(oldTask.task)
+            oldTask.task = taskInput.value
+            console.log(oldTask.task)
+            console.log(data)
+            updateLocalStorage()
+          }
+          if (oldTask !== false && parseInt(oldTask.pomodoros_completed) !== parseInt(pomodorosCompletedInput.value) || oldTask !== false &&  parseInt(oldTask.pomodoros_estimated) !== parseInt(pomodorosEstimatedInput.value)) {
+            console.log(oldTask.pomodoros_completed, parseInt(pomodorosCompletedInput.value), 'pomodoros completed')
+            console.log(oldTask.pomodoros_estimated, parseInt(pomodorosEstimatedInput.value), 'pomodoros estimated')
+            oldTask.pomodoros_completed = parseInt(pomodorosCompletedInput.value)
+            oldTask.pomodoros_estimated = parseInt(pomodorosEstimatedInput.value)
+            pomodorosSpan.textContent = `${pomodorosCompletedInput.value}/${pomodorosEstimatedInput.value}`
+            updateLocalStorage()
+          }
+        }
+      })
+
+      deleteButton.addEventListener('click', (e) => {
+        if (task.checked) {
+          checked_tasks.removeChild(li)
+          const newList = data.checked.filter(t => t.id !== task.id)
+          data.checked = newList
+          updateLocalStorage()
+
+        } else {
+          tasks.removeChild(li)
+          const newList = data.tasks.filter(t => t.id !== task.id)
+          data.tasks = newList
+          updateLocalStorage()
+        }
+      })
+
+      optionsButton.addEventListener('click', (e) => {
+        console.log(deleteButton.style.display)
+        if (deleteButton.style.display === "none" && editBtn.style.display === 'none') {
+          deleteButton.style.display = 'inline'
+          editBtn.style.display = 'inline'
+        } else {
+          deleteButton.style.display = 'none'
+          editBtn.style.display = 'none'
+        }
+      })
+
+      editBtn.addEventListener('click', (e) => {
+        editBtn.style = 'display: none'
+        deleteButton.style = 'display: none'
+        optionsButton.style = 'display: none'
+        label.style = 'display: none'
+        pomodorosSpan.style = 'display: none'
+        pomodorosContainer.style = 'display: flex'
+        taskInput.disabled = false
+        li.classList.toggle('isEditTask')
+      })
+
+      inputLabel.addEventListener('click', (e) => {
+        if (task.checked === false) {
+          tasks.removeChild(li)
+          task.checked = true
+          li.classList.add('checked-task')
+          const newList = data.tasks.filter(t => t.id !== task.id)
+          data.tasks = newList
+          data.checked.unshift(task)
+          checked_tasks.insertBefore(li, checked_tasks.firstChild)
+          updateLocalStorage()
+        } else {
+          checked_tasks.removeChild(li)
+          task.checked = false
+          li.classList.remove('checked-task')
+          const newList = data.checked.filter(t => t.id !== task.id)
+          data.checked = newList
+          data.tasks.push(task)
+          tasks.appendChild(li)
+          updateLocalStorage()
+        }
+      })
+      
+
+      pomodorosCompletedInput.type = 'number'
+      pomodorosEstimatedInput.type = 'number'
+      pomodorosCompletedInput.value = task.pomodoros_completed
+      pomodorosEstimatedInput.value = task.pomodoros_estimated
+
+      pomodorosContainer.appendChild(pomodorosCompletedInput)
+      // pomodorosContainer.innerText = '/'
+      pomodorosContainer.appendChild(pomodorosEstimatedInput)
+      pomodorosContainer.classList.add('inputs-pomodoros-completed')
+      pomodorosContainer.style = 'display: none'
+      editBtn.classList.add('edit-btn')
+      editPen.src = './public/img/editPencil.svg'
+      editBtn.appendChild(editPen)
+      optionsContainer.classList.add('options-container')
+      pomodorosSpan.classList.add('pomodoros-completed')
+      pomodorosSpan.innerText = task.pomodoros_completed + '/' + task.pomodoros_estimated
+      label.for = 'check-button'
+      inputLabel.classList.add('check-button')
+      inputLabel.type = 'checkbox'
+      trashImg.src = './public/img/trash.svg'
+      deleteButton.appendChild(trashImg)
+      optionsButton.textContent = '...'
+      // deleteButton.style = 'display: none'
+      // editBtn.style = 'display: none'
+      taskInput.value = task.task
+      taskInput.classList.add('task')
+      taskInput.disabled = true
+      if (task.checked) {
+        inputLabel.checked = true
+      }
+      label.appendChild(inputLabel)
+      li.classList.add('task-container')
+      li.appendChild(label)
+      li.appendChild(taskInput)
+      optionsButton.classList.add('task-options--btn')
+      deleteButton.classList.add('trash-btn')
+      optionsContainer.appendChild(pomodorosSpan)
+      optionsContainer.appendChild(pomodorosContainer)
+      optionsContainer.appendChild(optionsButton)
+      optionsContainer.appendChild(deleteButton)
+      optionsContainer.appendChild(editBtn)
+      li.appendChild(optionsContainer)
+      li.id = task.id
+      if (task.checked) {
+        li.classList.add('checked-task')
+        checked_tasks.appendChild(li)
+      } else {
+        tasks.appendChild(li)
+      }
+  }
+
+  function mapTasks (tasksArray) {
+    for (const task of tasksArray) {
+      createTask(task)
+    }
+  }
+  
+  const data = {
+    times: {
+      pomodoro: 25,
+      shortBreak: 5,
+      longBreak: 20
+    },
+    autoStart: true,
+    tasks: [],
+    checked: [],
+    pomodoros: 0,
+    shortBreaks: 0,
+    longBreaks: 0,
+    longBreakInterval: 4,
+    notification: true,
+    theme: false
+  }
+
+  let timer;
+  let timeMode = MODES.pomodoro
+  let min = data.times.pomodoro;
+  let sec = 0;
+  let isRunning;
+
+  if (window.localStorage.getItem('pomoData')) {
+    console.log(miStorage)
+    data.times = miStorage.times
+    data.autoStart = miStorage.autoStart
+    data.checked = miStorage.checked
+    data.pomodoros = miStorage.pomodoros
+    data.shortBreaks = miStorage.shortBreaks
+    data.longBreaks = miStorage.longBreaks
+    data.longBreakInterval = miStorage.longBreakInterval
+    data.notification = miStorage.notification
+    data.theme = miStorage.theme
+    data.tasks = miStorage.tasks
+
+    selectMode(MODES.pomodoro)
+    pomodoro_button.innerText = 'Pomodoro ' + miStorage.pomodoros
+    shortBreak_button.innerText = 'Short Break ' + miStorage.shortBreaks
+    longBreak_button.innerText = 'Long Break ' + miStorage.longBreaks
+
+    autoStart_btn.checked = miStorage.autoStart
+    timer_pomodoro.value = miStorage.times.pomodoro
+    timer_shortBreak.value = miStorage.times.shortBreak
+    timer_longBreak.value = miStorage.times.longBreak
+    longBreak_pomodoros.value = miStorage.longBreakInterval
+    // theme_btn.checked = miStorage.theme
+    notifications.checked = miStorage.notification
+    mapTasks(data.tasks)
+    mapTasks(data.checked)
+  } else {
+    console.log('crear data')
+    try {
+      window.localStorage.setItem('pomoData', JSON.stringify(data))
+      console.log('LocalStorageCreated')
+    } catch (error) {
+      console.error(error)
+    }
+  }
+  
+
+
+  add_task.addEventListener('click', (e) => {
+    e.preventDefault()
+    const text_input = document.getElementById('text-input')
+    const newValue = text_input.value
+    const estimatedPomo = Number(pomodoros_estimated.value)
+    console.log(estimatedPomo)
+    const task = {
+        id: generateId(),
+        task: newValue,
+        pomodoros_completed: 0,
+        pomodoros_estimated: estimatedPomo,
+        checked: false
+      }
+
+    if (newValue.length > 0) {
+      createTask(task)
+
+      data.tasks.push(task)
+      console.log(data.tasks)
+      updateLocalStorage()
+
+
+      text_input.value = ''
+      pomodoros_estimated.value = 1
+    }
+  })
+  settings_btn.addEventListener('click', (e) => {
+    settingsModal.showModal()
+  })
+  // theme_btn.addEventListener('click', (e) => {
+  // })
+  autoStart_btn.addEventListener('click', (e) => {
+    if (e.target.checked) {
+      data.autoStart = true
+    } else {
+      data.autoStart = false
+    }
+    updateLocalStorage()
+  })
+  quitModal_btn.addEventListener('click', (e) => {
+  
+    settingsModal.close()
+  })
+  longBreak_pomodoros.addEventListener('input', (e) => {
+    data.longBreakInterval = e.target.value
+    updateLocalStorage()
+  })
+  timer_pomodoro.addEventListener('input', (e) => {
+    data.times.pomodoro = Number(e.target.value)
+    updateLocalStorage()
+    if (timeMode === MODES.pomodoro) {
+      selectMode(MODES.pomodoro)
+    }
+  })
+  timer_shortBreak.addEventListener('input', (e) => {
+    data.times.shortBreak = Number(e.target.value)
+    updateLocalStorage()
+    if (timeMode === MODES.shortBreak) {
+      selectMode(MODES.shortBreak)
+    }
+  })
+  timer_longBreak.addEventListener('input', (e) => {
+    data.times.longBreak = Number(e.target.value)
+    updateLocalStorage()
+    if (timeMode === MODES.longBreak) {
+      selectMode(MODES.longBreak)
+    }
+  })
+  // theme_btn.addEventListener('click', (e) => {
+  //   if (e.target.checked) {
+  //     data.theme = true
+  //   } else {
+  //     data.theme = false
+  //   }
+  //   updateLocalStorage()
+  // })
+  notifications.addEventListener('click', (e) => {
+    if (e.target.checked) {
+      data.notification = true
+    } else {
+      data.notification = false
+    }
+    updateLocalStorage()
+  })
+
+  function startTimer() {
+    if (!isRunning) {
+      isRunning = true;
+      timer = setInterval(updateTimer, 1000);
+      play_timer.innerText = 'Pause'
+    } else {
+        pauseTimer()
+    }
+  }
+
+  function selectMode(mode) {
+    clearInterval(timer)
+    isRunning = false
+    sec = 0
+    play_timer.innerText = 'Start'
+    pomodoro_button.classList.remove('active');
+    shortBreak_button.classList.remove('active');
+    longBreak_button.classList.remove('active');
+
+    if (mode === MODES.pomodoro) {
+      min = Number(data.times.pomodoro)
+      timeMode = MODES.pomodoro
+      pomodoro_button.classList.add('active')
+      timer_clock.innerText = `${formatTime(min)}:${formatTime(sec)}`
+    }
+    
+    if (mode === MODES.shortBreak) {    
+      min = Number(data.times.shortBreak)
+      timeMode = MODES.shortBreak
+      shortBreak_button.classList.add('active')
+      timer_clock.innerText = `${formatTime(min)}:${formatTime(sec)}`
+    }
+    if (mode === MODES.longBreak) {
+      min = Number(data.times.longBreak)
+      timeMode = MODES.longBreak
+      longBreak_button.classList.add('active')
+      timer_clock.innerText = `${formatTime(min)}:${formatTime(sec)}`
+    }
+  }
+
+  function updateTimer() {
+    console.log(min, sec)
+    if (min === 0 && sec === 0) {
+      if (data.tasks.length === 0) {
+
+      }
+      // selectMode(MODES.shortBreak)
+      if (timeMode === MODES.pomodoro) {
+        data.pomodoros ++
+        const firstChildTasks = tasks.firstElementChild
+        const taskObj = data.tasks.find(t => t.id === firstChildTasks.id) 
+        taskObj.pomodoros_completed ++
+        const pomodorosCompletedTask = document.querySelector(`#${firstChildTasks.id}`).querySelector('.pomodoros-completed')
+        pomodorosCompletedTask.innerText = taskObj.pomodoros_completed + '/' + taskObj.pomodoros_estimated
+        updateLocalStorage()
+        pomodoro_button.innerText = 'Pomodoro ' + data.pomodoros
+
+        console.log(taskObj.pomodoros_completed, taskObj.pomodoros_estimated)
+        if (taskObj.pomodoros_completed === taskObj.pomodoros_estimated) {
+          taskObj.checked = true
+          tasks.removeChild(firstChildTasks)
+          firstChildTasks.querySelector('.check-button').checked = true
+          firstChildTasks.classList.add('checked-task')
+          const newList = data.tasks.filter(t => t.id !== taskObj.id)
+          data.tasks = newList
+          data.checked.unshift(taskObj)
+          checked_tasks.insertBefore(firstChildTasks, checked_tasks.firstChild)
+          updateLocalStorage()
+          if (data.tasks.length === 0) {
+            console.log("Congratulations, you've completed the tasks")
+          }
+        }
+
+        if (data.pomodoros % data.longBreakInterval !== 0) {
+          selectMode(MODES.shortBreak)
+        } else {
+          selectMode(MODES.longBreak)
+        }
+        if (data.autoStart && data.tasks.length !== 0 ) {
+          startTimer()
+        }
+        // alert("You're done, it's time for a break")
+      }
+      else if (timeMode === MODES.shortBreak) {
+        data.shortBreaks ++
+        updateLocalStorage()
+        shortBreak_button.innerText = 'Short Break ' + data.shortBreaks 
+        selectMode(MODES.pomodoro)
+        if (data.autoStart) {
+          startTimer()
+        }
+      }
+      else if (timeMode === MODES.longBreak ) {
+        data.longBreaks ++
+        updateLocalStorage()
+        longBreak_button.innerText = 'Long Break ' + data.longBreaks
+        selectMode(MODES.pomodoro)
+        if (data.autoStart) {
+          startTimer()
+        }
+      }
+      // alert("¡Tiempo completado! Tómate un descanso.");
+    } else {
+      if (sec === 0) {
+        min--;
+        sec = 59;
+      } else {
+        sec--;
+      }
+
+      timer_clock.innerText = `${formatTime(min)}:${formatTime(sec)}`;
+    }
+  }
+
+  function pauseTimer() {
+    clearInterval(timer)
+    isRunning = false
+    play_timer.innerText = 'Resume'
+  }
+
+  function resetTimer() {
+    clearInterval(timer)
+    isRunning = false
+    min = data.times.pomodoro
+    sec = 0
+    timer_clock.innerText = `${formatTime(min)}:${formatTime(sec)}`
+    play_timer.innerText = 'Start'
+    shortBreak_button.classList.remove('active');
+    longBreak_button.classList.remove('active');
+    pomodoro_button.classList.add('active')
+  }
+
+  function formatTime(time) {
+    return time < 10 ? `0${time}` : time
+  }
+
+  function addToChecked() {
+    
+  }
+
+  function openTaskOptions() {
+    if (trash_btn.style.display === 'none') {
+      trash_btn.style = 'display: flex'
+    } else {
+      trash_btn.style = 'display: none'
+    } 
+  }
+</script>
